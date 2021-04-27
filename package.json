@@ -1,0 +1,16 @@
+{
+  "name": "mario-vanilla",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start":"serve ./public",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "save": "^2.4.0",
+    "serve": "^11.3.2"
+  }
+}
