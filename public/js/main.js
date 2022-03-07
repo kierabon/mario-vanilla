@@ -1,7 +1,7 @@
 import Compositor from './Compositor.js';
 import { loadLevel} from './loader.js';
 import {loadMarioSprite, loadBackgroundSprites} from './sprites.js';
-
+import {createBackgroundLayer} from './layers';
 
 const canvas= document.getElementById("screen");
 const context= canvas.getContext("2d");
