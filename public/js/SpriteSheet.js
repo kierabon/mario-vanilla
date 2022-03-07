@@ -1,5 +1,5 @@
 export default class SpriteSheet{
-    constructor(image, width = 16, height = 16){
+    constructor(image, width, height){
         this.image = image;
         this.width = width;
         this.height = height;
@@ -25,13 +25,17 @@ export default class SpriteSheet{
             this.tiles.set(name, buffer);
     }
     defineTile(name, x,y){
-        this.define(name, x*this.width, y*this.height, this.width, this.height);
+        this.define(name, 
+             x * this.width,
+             y * this.height, 
+             this.width, 
+             this.height);
     }
     draw(name, context, x, y){
         const buffer = this.tiles.get(name);
         context.drawImage(buffer, x, y);
     }
     drawTile(name, context, x, y){
-        this.draw(name, context, x*this.width, y * this.height);
+        this.draw(name, context, x * this.width, y * this.height);
     }
 }
