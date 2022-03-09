@@ -1,43 +1,54 @@
 import Compositor from './Compositor.js';
-import { loadLevel} from './loader.js';
-import {loadMarioSprite, loadBackgroundSprites} from './sprites.js';
-import {createBackgroundLayer} from './layers';
+import Timer from './Timer.js';
+import {loadLevel} from './loaders.js';
+import {createMario} from './entities.js';
+import {loadBackgroundSprites} from './sprites.js';
+import {createBackgroundLayer, createSpriteLayer} from './layers.js';
 
-const canvas= document.getElementById("screen");
-const context= canvas.getContext("2d");
+import Keyboard from './KeyboardState.js';
 
-function createSpriteLayer(sprite, pos) {
-    return function drawSpriteLayer(context) {
-        sprite.draw('idle', context, pos.x, pos.y);
-    };
-}
+
+const canvas = document.getElementById('screen');
+const context = canvas.getContext('2d');
 
 Promise.all([
-    loadMarioSprite(),
+    createMario(),
     loadBackgroundSprites(),
-     loadLevel('1-1'),
+    loadLevel('1-1'),
 ])
-    .then(([marioSprite, backgroundSprites, level,]) =>{ 
-        console,log('level loader', level);
-        
-        const comp = new Compositor();
-        comp.layers.push(createBackgroundLayer(level.backgrounds, backgroundSprites));
-   
-    const pos ={
-        x:64,
-        y: 64,
-    };
+.then(([mario, backgroundSprites, level]) => {
+    const comp = new Compositor();
 
-comp,layers,push(createSpriteLayer(marioSprite, pos));
+    const backgroundLayer = createBackgroundLayer(level.backgrounds, backgroundSprites);
+    comp.layers.push(backgroundLayer);
 
-function update(){
-    comp.draw(context);
-     pos.x += 2;
-     pos.y += 2;
-     requestAnimationFrame(update);
+    const gravity = 2000;
+    mario.pos.set(64, 180);
+
+
+    const SPACE = 32;
+    const input = new Keyboard();
+    input.addMapping(SPACE, keyState => {
+        if (keyState) {
+            mario.jump.start();
+        } else {
+            mario.jump.cancel();
+        }
+    });
+    input.listenTo(window);
+
+
+    const spriteLayer = createSpriteLayer(mario);
+    comp.layers.push(spriteLayer);
+
+    const timer = new Timer(1/60);
+    timer.update = function update(deltaTime) {
+        mario.update(deltaTime);
+
+        comp.draw(context);
+
+        mario.vel.y += gravity * deltaTime;
     }
-     
-    
-   update();
-    
+
+    timer.start();
 });
