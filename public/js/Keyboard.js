@@ -2,7 +2,7 @@
 const PRESSED = 1;
 const RELEASED = 0;
 
-export default class KeyboardState {
+export default class Keyboard {
     constructor() {
         // Holds the current state of a given key
         this.keyStates = new Map();
