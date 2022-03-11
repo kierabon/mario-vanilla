@@ -1,11 +1,8 @@
-import Compositor from './Compositor.js';
 import Timer from './Timer.js';
 import {loadLevel} from './loader.js';
 import {createMario} from './entities.js';
-import {loadBackgroundSprites} from './sprites.js';
-import {createBackgroundLayer, createSpriteLayer} from './layers.js';
-
-import Keyboard from './Keyboard.js';
+import {createCollisionLayer} from './layers.js';
+import {setupKeyboard} from './input.js';
 
 
 const canvas = document.getElementById('screen');
@@ -13,41 +10,34 @@ const context = canvas.getContext('2d');
 
 Promise.all([
     createMario(),
-    loadBackgroundSprites(),
     loadLevel('1-1'),
 ])
-.then(([mario, backgroundSprites, level]) => {
-    const comp = new Compositor();
+.then(([mario, level]) => {
+    mario.pos.set(64,64);
+    
+    level.comp.layers.push(createCollisionLayer(level));
 
-    const backgroundLayer = createBackgroundLayer(level.backgrounds, backgroundSprites);
-    comp.layers.push(backgroundLayer);
-
-    const gravity = 2000;
-    mario.pos.set(64, 180);
-
-
-    const SPACE = 32;
-    const input = new Keyboard();
-    input.addMapping(SPACE, keyState => {
-        if (keyState) {
-            mario.jump.start();
-        } else {
-            mario.jump.cancel();
-        }
-    });
+    //const gravity = 2000;
+    level.entities.add(mario);
+    const input = setupKeyboard(mario);
     input.listenTo(window);
 
+    ['mousedown', 'mousemove'].forEach(eventName => {
+        canvas.addEventListener(eventName, event =>{
+            if (event.buttons === 1) {
+                mario.vel.set(0,0);
+                mario.pos.set(event.offsetY, event.offsetX);
+            }
+        });
+    });
 
-    const spriteLayer = createSpriteLayer(mario);
-    comp.layers.push(spriteLayer);
 
     const timer = new Timer(1/60);
     timer.update = function update(deltaTime) {
-        mario.update(deltaTime);
+        level.update(deltaTime);
 
-        comp.draw(context);
+        level.comp.draw(context);
 
-        mario.vel.y += gravity * deltaTime;
     }
 
     timer.start();
